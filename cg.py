@@ -43,7 +43,7 @@ class CG:
         #               'I': [self.I, self.I2, 'J'], 'J': [self.J, self.J2]}
 
     @classmethod
-    def line_breasenham(cls, x0, y0, x1, y1, canvas, color):
+    def line_breasenham(cls, x0, y0, x1, y1, canvas,z,zbuffer, color):
         dx = abs(x1-x0)
         dy = abs(y1-y0)
         d = 0
@@ -54,7 +54,8 @@ class CG:
                     # octante 1
                     y = y0
                     for x in range(x0, x1+1):
-                        canvas.create_line(x, y, x+1, y+1, fill=color)
+                        if zbuffer[int(x)][int(y)] < z:
+                            canvas.create_line(x, y, x+1, y+1, fill=color)
                         if d < 0:
                             d += dy
 
@@ -65,7 +66,8 @@ class CG:
                     # octante 8
                     y = y0
                     for x in range(x0, x1+1):
-                        canvas.create_line(x, y, x+1, y+1, fill=color)
+                        if zbuffer[int(x)][int(y)] < z:
+                            canvas.create_line(x, y, x+1, y+1, fill=color)
                         if d < 0:
                             d += dy
 
@@ -78,7 +80,8 @@ class CG:
                     y = y0
 
                     for x in range(x0, x1, -1):
-                        canvas.create_line(x, y, x+1, y+1, fill=color)
+                        if zbuffer[int(x)][int(y)] < z:
+                            canvas.create_line(x, y, x+1, y+1, fill=color)
                         if d < 0:
                             d += dy
 
@@ -89,7 +92,8 @@ class CG:
                     # octante 5
                     y = y0
                     for x in range(x0, x1, -1):
-                        canvas.create_line(x, y, x+1, y+1, fill=color)
+                        if zbuffer[int(x)][int(y)] < z:
+                            canvas.create_line(x, y, x+1, y+1, fill=color)
                         if d < 0:
                             d += dy
 
@@ -105,7 +109,9 @@ class CG:
                     # octeto 2
                     x = x0
                     for y in range(y0, y1):
-                        canvas.create_line(x, y, x+1, y+1, fill=color)
+                        print(f'x:{x} y:{y}')
+                        if zbuffer[int(x)][int(y)] < z:
+                            canvas.create_line(x-1, y-1, x, y, fill=color)
                         if 0 < d:
                             d -= dx
                         else:
@@ -116,7 +122,8 @@ class CG:
                     # octeto 3
                     x = x0
                     for y in range(y0, y1+1):
-                        canvas.create_line(x, y, x+1, y+1, fill=color)
+                        if zbuffer[int(x)][int(y)] < z:
+                            canvas.create_line(x, y, x+1, y+1, fill=color)
                         if 0 < d:
                             d -= dx
                         else:
@@ -129,7 +136,8 @@ class CG:
                     # octeto 7
                     x = x0
                     for y in range(y0, y1, -1):
-                        canvas.create_line(x, y, x+1, y+1, fill=color)
+                        if zbuffer[int(x)][int(y)] < z:
+                            canvas.create_line(x, y, x+1, y+1, fill=color)
                         if 0 < d:
                             d -= dx
                         else:
@@ -140,7 +148,8 @@ class CG:
                     # octeto 6
                     x = x0
                     for y in range(y0, y1, -1):
-                        canvas.create_line(x, y, x+1, y+1, fill=color)
+                        if zbuffer[int(x)][int(y)] < z:
+                            canvas.create_line(x, y, x+1, y+1, fill=color)
                         if 0 < d:
                             d -= dx
                         else:
@@ -148,23 +157,26 @@ class CG:
                             x -= 1
 
     @classmethod
-    def draw_circle(cls, xc, yc, x, y, canvas, color='#ff00ff'):
-        canvas.create_line(xc+x, yc+y, (xc+x)+1, (yc+y)+1, fill=color)
-        canvas.create_line(xc-x, yc+y, (xc-x)+1, (yc+y)+1, fill=color)
-        canvas.create_line(xc+x, yc-y, (xc+x)+1, (yc-y)+1, fill=color)
-        canvas.create_line(xc-x, yc-y, (xc-x)+1, (yc-y)+1, fill=color)
-        canvas.create_line(xc+y, yc+x, (xc+y)+1, (yc+x)+1, fill=color)
-        canvas.create_line(xc-y, yc+x, (xc-y)+1, (yc+x)+1, fill=color)
-        canvas.create_line(xc+y, yc-x, (xc+y)+1, (yc-x)+1, fill=color)
-        canvas.create_line(xc-y, yc-x, (xc-y)+1, (yc-x)+1, fill=color)
+    def draw_circle(cls, xc, yc, x, y, canvas, zbuffer,r, color='#ff00ff'):
+        
+        if (r) > zbuffer[int(xc)+int(x)][int(yc)+int(y)]:
+            zbuffer[int(xc)+int(x)][int(yc)+int(y)] = r
+            canvas.create_line(xc+x-1, yc+y-1, (xc+x), (yc+y), fill=color)
+            canvas.create_line(xc-x-1, yc+y-1, (xc-x), (yc+y), fill=color)
+            canvas.create_line(xc+x-1, yc-y-1, (xc+x), (yc-y), fill=color)
+            canvas.create_line(xc-x-1, yc-y-1, (xc-x), (yc-y), fill=color)
+            canvas.create_line(xc+y-1, yc+x-1, (xc+y), (yc+x), fill=color)
+            canvas.create_line(xc-y-1, yc+x-1, (xc-y), (yc+x), fill=color)
+            canvas.create_line(xc+y-1, yc-x-1, (xc+y), (yc-x), fill=color)
+            canvas.create_line(xc-y-1, yc-x-1, (xc-y), (yc-x), fill=color)
 
     @classmethod
-    def circunferencia(cls, xc, yc, r, canvas, color='#ff00ff'):
+    def circunferencia(cls, xc, yc, r, canvas, zbuffer, color='#ff00ff'):
         print('entrou circunferencia')
         x = 0
         y = r
         d = 3 - 2*r
-        CG.draw_circle(xc, yc, x, y, canvas, color)
+        CG.draw_circle(xc, yc, x, y, canvas, zbuffer,r,color)
         print(f'xc: {xc}, yc: {yc}, x: {x}, y: {y}, r: {r}, d: {d}')
         while y >= x:
             x += 1
@@ -174,7 +186,7 @@ class CG:
                 d += 4*(x-y) + 10
             else:
                 d+=4*(x) + 6
-            CG.draw_circle(xc, yc, x, y, canvas, color)
+            CG.draw_circle(xc, yc, x, y, canvas, zbuffer,r, color)
             print(f'xc: {xc}, yc: {yc}, x: {x}, y: {y}, r: {r}, d: {d}')
             
 
