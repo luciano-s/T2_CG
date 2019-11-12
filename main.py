@@ -7,20 +7,49 @@ class App:
 
     def __init__(self, master):
         self.master = master
-        self.canvas = tk.Canvas(self.master, height=768, width=1366, 
-        background="#ffffff")
-        self.canvas.grid(row=0, column=0)
+        self.create_menu()
+        self.master.config(menu=self.menu)
+
         self.z_buffer = np.full((1366, 768), -100000)
         self.color_buffer = np.full((1366, 768), '#ffffff')
         self.observer = [0, 0, 100]
         self.light = [100, 0, 100]
         self.plane = []
         self.sphere = []
+        
+        self.canvas = tk.Canvas(self.master, height=768, width=1366, 
+        background="#ffffff")        
+        self.canvas.grid(row=0, column=0)
         self.set_plane()
-        
-        self.draw_sphere()
+        self.set_sphere()
         self.draw_color_buffer()
+
+    def create_menu(self):
+        self.menu = tk.Menu(self.master)
+        self.model_1 = tk.Menu(self.menu)
+        self.model_2 = tk.Menu(self.menu)
+        self.model_1.add_command(
+        label='Aplicar modelo',
+        command=self.call_model_1)
+        self.model_2.add_command(
+            label=
+            'Aplicar modelo'
+            ,command=self.call_model_2)
         
+        self.menu.add_cascade(label=
+            'Ia.Ka+Il.kd.cos(theta)', menu=self.model_1)
+        
+        self.menu.add_cascade(label=
+            '(Ia.Ka+Il/(d+k))(Kd.cos(theta) + Ks.cos^n(a))',
+            menu=self.model_2)
+    
+
+    def call_model_1(self):
+        pass
+
+
+    def call_model_2(self):
+        pass
 
     def draw_color_buffer(self):
 
@@ -38,11 +67,9 @@ class App:
                 if self.z_buffer[i+683][384-j] < 0:
                     self.z_buffer[i+683][384-j] = 0
                     self.color_buffer[i+683][384-j] = '#0000ff'
-
-        
         
 
-    def draw_sphere(self):
+    def set_sphere(self):
         for r in range (50, -1, -1):
             CG.circunferencia(684,384, r, self.canvas,self.z_buffer,
                 self.color_buffer, color='#ff00ff')

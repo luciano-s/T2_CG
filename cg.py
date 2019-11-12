@@ -188,7 +188,7 @@ class CG:
 
     @classmethod
     def circunferencia(cls, xc, yc, r, canvas, zbuffer,colorbuffer, color='#ff00ff'):
-        print('entrou circunferencia')
+        
         x = 0
         y = r
         d = 1-r
