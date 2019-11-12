@@ -11,32 +11,43 @@ class App:
         background="#ffffff")
         self.canvas.grid(row=0, column=0)
         self.z_buffer = np.full((1366, 768), -100000)
-        self.color_buffer = np.full((1366, 768), 0)
+        self.color_buffer = np.full((1366, 768), '#ffffff')
         self.observer = [0, 0, 100]
         self.light = [100, 0, 100]
         self.plane = []
         self.sphere = []
-        self.draw_sphere()
         self.set_plane()
-        self.draw_plane()
-        print(self.z_buffer[683][384])
+        
+        self.draw_sphere()
+        self.draw_color_buffer()
+        
 
+    def draw_color_buffer(self):
+
+        for line in range(len(self.color_buffer)):
+            for column in range(len(self.color_buffer[line])):
+                if self.color_buffer[line][column] != '#ffffff':
+                    self.canvas.create_line(line, column, line+1,column,
+                     fill=self.color_buffer[line][column])
+                
 
     def set_plane(self):
         for i in range(0, 101):
             for j in range(0, 101):
                 self.plane.append((i, j, 0, 1))
-                if self.z_buffer[i+683][j+384] < 0:
-                    self.z_buffer[i+683][j+384] = 0
+                if self.z_buffer[i+683][384-j] < 0:
+                    self.z_buffer[i+683][384-j] = 0
+                    self.color_buffer[i+683][384-j] = '#0000ff'
 
-        print(len(self.plane))
+        
         
 
     def draw_sphere(self):
         for r in range (50, -1, -1):
+            CG.circunferencia(684,384, r, self.canvas,self.z_buffer,
+                self.color_buffer, color='#ff00ff')
+
             
-            CG.circunferencia(684,384, r, self.canvas,self.z_buffer, color='#ff00ff')
-            CG.circunferencia(683,384, r, self.canvas,self.z_buffer, color='#ff00ff')
 
 
 

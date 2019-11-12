@@ -157,38 +157,54 @@ class CG:
                             x -= 1
 
     @classmethod
-    def draw_circle(cls, xc, yc, x, y, canvas, zbuffer,r, color='#ff00ff'):
+    def draw_circle(cls, xc, yc, x, y, canvas, zbuffer,r,colorbuffer, color='#ff00ff'):
         
-        if (r) > zbuffer[int(xc)+int(x)][int(yc)+int(y)]:
-            zbuffer[int(xc)+int(x)][int(yc)+int(y)] = r
-            canvas.create_line(xc+x-1, yc+y-1, (xc+x), (yc+y), fill=color)
-            canvas.create_line(xc-x-1, yc+y-1, (xc-x), (yc+y), fill=color)
-            canvas.create_line(xc+x-1, yc-y-1, (xc+x), (yc-y), fill=color)
-            canvas.create_line(xc-x-1, yc-y-1, (xc-x), (yc-y), fill=color)
-            canvas.create_line(xc+y-1, yc+x-1, (xc+y), (yc+x), fill=color)
-            canvas.create_line(xc-y-1, yc+x-1, (xc-y), (yc+x), fill=color)
-            canvas.create_line(xc+y-1, yc-x-1, (xc+y), (yc-x), fill=color)
-            canvas.create_line(xc-y-1, yc-x-1, (xc-y), (yc-x), fill=color)
+        if (50-r) > zbuffer[int(xc)+int(x)][int(yc)+int(y)]:
+            zbuffer[int(xc)+int(x)][int(yc)+int(y)] = 50-r
+            zbuffer[int(xc)-int(x)][int(yc)+int(y)] = 50-r
+            zbuffer[int(xc)+int(x)][int(yc)-int(y)] = 50-r
+            zbuffer[int(xc)-int(x)][int(yc)-int(y)] = 50-r
+            zbuffer[int(xc)+int(y)][int(yc)+int(x)] = 50-r
+            zbuffer[int(xc)-int(y)][int(yc)+int(x)] = 50-r
+            zbuffer[int(xc)+int(y)][int(yc)-int(x)] = 50-r
+            zbuffer[int(xc)-int(y)][int(yc)-int(x)] = 50-r
+            colorbuffer[int(xc)+int(x)][int(yc)+int(y)] = color
+            colorbuffer[int(xc)-int(x)][int(yc)+int(y)] = color
+            colorbuffer[int(xc)+int(x)][int(yc)-int(y)] = color
+            colorbuffer[int(xc)-int(x)][int(yc)-int(y)] = color
+            colorbuffer[int(xc)+int(y)][int(yc)+int(x)] = color
+            colorbuffer[int(xc)-int(y)][int(yc)+int(x)] = color
+            colorbuffer[int(xc)+int(y)][int(yc)-int(x)] = color
+            colorbuffer[int(xc)-int(y)][int(yc)-int(x)] = color
+
+            # canvas.create_line(xc+x-1, yc+y-1, (xc+x), (yc+y), fill=color)
+            # canvas.create_line(xc-x-1, yc+y-1, (xc-x), (yc+y), fill=color)
+            # canvas.create_line(xc+x-1, yc-y-1, (xc+x), (yc-y), fill=color)
+            # canvas.create_line(xc-x-1, yc-y-1, (xc-x), (yc-y), fill=color)
+            # canvas.create_line(xc+y-1, yc+x-1, (xc+y), (yc+x), fill=color)
+            # canvas.create_line(xc-y-1, yc+x-1, (xc-y), (yc+x), fill=color)
+            # canvas.create_line(xc+y-1, yc-x-1, (xc+y), (yc-x), fill=color)
+            # canvas.create_line(xc-y-1, yc-x-1, (xc-y), (yc-x), fill=color)
 
     @classmethod
-    def circunferencia(cls, xc, yc, r, canvas, zbuffer, color='#ff00ff'):
+    def circunferencia(cls, xc, yc, r, canvas, zbuffer,colorbuffer, color='#ff00ff'):
         print('entrou circunferencia')
         x = 0
         y = r
-        d = 3 - 2*r
-        CG.draw_circle(xc, yc, x, y, canvas, zbuffer,r,color)
-        print(f'xc: {xc}, yc: {yc}, x: {x}, y: {y}, r: {r}, d: {d}')
-        while y >= x:
-            x += 1
-            if d > 0:
-                print(y)
-                y -=1
-                d += 4*(x-y) + 10
+        d = 1-r
+        CG.draw_circle(xc, yc, x, y, canvas, zbuffer,r,colorbuffer,color)
+        CG.draw_circle(xc, yc, x+1, y, canvas, zbuffer,r,colorbuffer,color)
+        
+        while x < y:
+            if d < 0:
+                d = d+2*x+3
+                x +=1
             else:
-                d+=4*(x) + 6
-            CG.draw_circle(xc, yc, x, y, canvas, zbuffer,r, color)
-            print(f'xc: {xc}, yc: {yc}, x: {x}, y: {y}, r: {r}, d: {d}')
-            
+                d = d+2*(x-y)+5
+                x+=1
+                y-=1
+            CG.draw_circle(xc, yc, x, y, canvas, zbuffer,r,colorbuffer,color)
+            CG.draw_circle(xc, yc, x+1, y, canvas, zbuffer,r,colorbuffer,color)            
 
     @classmethod
     def scale_3D(cls, type='local'):
