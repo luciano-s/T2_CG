@@ -157,7 +157,7 @@ class CG:
                             x -= 1
 
     @classmethod
-    def draw_circle(cls, xc, yc, x, y, canvas, zbuffer,r,colorbuffer, color='#ff00ff'):
+    def draw_circle(cls, xc, yc, x, y, canvas, zbuffer,r,colorbuffer, color=(255, 0, 255)):
         
         if (50-r) > zbuffer[int(xc)+int(x)][int(yc)+int(y)]:
             zbuffer[int(xc)+int(x)][int(yc)+int(y)] = 50-r
@@ -187,7 +187,7 @@ class CG:
             # canvas.create_line(xc-y-1, yc-x-1, (xc-y), (yc-x), fill=color)
 
     @classmethod
-    def circunferencia(cls, xc, yc, r, canvas, zbuffer,colorbuffer, color='#ff00ff'):
+    def circunferencia(cls, xc, yc, r, canvas, zbuffer,colorbuffer, color=(255, 0, 255)):
         
         x = 0
         y = r
