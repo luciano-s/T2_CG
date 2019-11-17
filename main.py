@@ -46,7 +46,7 @@ class App:
 
         #DRAW BUFFER BEGIN
         self.draw_color_buffer()
-        self.color_buffer_backup = self.color_buffer
+        self.color_buffer_backup = self.color_buffer.copy()
         #DRAW BUFFER END
 
     def fill_buffer(self):
@@ -84,7 +84,7 @@ class App:
         dot_product = App.dot_product(vector_u,vector_v)
         product_norma = App.norma_vector(vector_v)*App.norma_vector(vector_u)
 
-        return dot_product/product_norma        
+        return max(dot_product/product_norma,0)
 
 
     def equation_model_1(self, cos, objeto):
@@ -115,15 +115,22 @@ class App:
             b = 255
         return(r,g,b)
 
+
+    def find_vector(self, normal):
+        norma = self.norma_vector(self.light)
+        cos   = self.get_cos(self.light, normal)
+        sin   = (1-cos**2)**(1/2)
+        return [norma*cos, norma*sin, self.light[2]]
+
+
     def call_model_1(self):
         if(self.color_buffer_changed):
             self.color_buffer_changed = False
-            self.color_buffer = self.color_buffer_backup
+            self.color_buffer = self.color_buffer_backup.copy()
 
         cos_theta_plano = self.get_cos(self.plane_vector, self.light)
         cos_theta = 1
         obj = ''        
-        I_plano = self.equation_model_1(cos_theta_plano, 'plano')
         
         
 
@@ -134,9 +141,9 @@ class App:
                 v = self.color_buffer[line][column]
                 if self.color_buffer[line][column] != self.background:
                     if self.color_buffer[line][column]==self.plane_color:
-                        I = I_plano
                         obj = 'plano'
                         cos_theta = cos_theta_plano
+
 
                     elif self.color_buffer[line][column]==self.sphere_color:
                         
@@ -165,17 +172,23 @@ class App:
 
     def call_model_2(self):
         if(self.color_buffer_changed):
-            
-            self.color_buffer = self.color_buffer_backup
+            self.color_buffer = self.color_buffer_backup.copy()
             self.color_buffer_changed = False
-
-        cos_theta_plano = self.get_cos(self.plane_vector, self.light)
-        cos_a_plano = self.get_cos(self.plane_vector, self.observer)
+        
+        norm = self.dot_product(self.light,self.plane_vector)
+        norm = [2*norm*self.plane_vector[0],2*norm*self.plane_vector[1],
+            2*norm*self.plane_vector[2]]
+        
+        r_plane = [self.light[0]-norm[0],self.light[1]-norm[1],
+        self.light[2]-norm[2]]
+                
         
         cos_theta = 1
         cos_a = 1
+        cos_theta_plano = self.get_cos(self.plane_vector, self.light)
+        cos_a_plano = self.get_cos(r_plane, self.observer)
         obj = ''        
-        I_plano = self.equation_model_2(cos_theta, cos_a, 'plano')
+        
         
 
         for line in range(0, len(self.color_buffer)-1):
@@ -187,19 +200,29 @@ class App:
                 v = self.color_buffer[line][column]
                 if self.color_buffer[line][column] != self.background:
                     if self.color_buffer[line][column]==self.plane_color:
-                        I = I_plano
+                        
                         obj = 'plano'
                         cos_theta = cos_theta_plano
                         cos_a = cos_a_plano
+                        print(cos_theta)
+                        print(cos_a)
 
                     elif self.color_buffer[line][column]==self.sphere_color:
                         
                         normal = [2*(line-683), 2*(column-384), 2*self.z_buffer[line][column]]
                         norma = App.norma_vector(normal)
-                        normal =[normal[0], normal[1], normal[2]]
+                        normal =[normal[0]/norma, normal[1]/norma, normal[2]/norma]
+                        n = self.dot_product(self.light,normal)
+                        n = 2*n
+                        r =[n*normal[0],n*normal[1],n*normal[2]]
+                        r = [-self.light[0]+r[0],-self.light[1]+r[1],-self.light[2]+r[2]]
+
                         
                         cos_theta = self.get_cos(normal, self.light)
-                        cos_a = self.get_cos(normal, self.observer)
+                        # r = [-self.light[0], -self.light[1], self.light[2]]
+                        cos_a = self.get_cos(r, self.observer)
+                        # print(cos_a)
+                        # input()
                         obj = 'esfera'
 
                     I = self.equation_model_2(cos_theta, cos_a, obj)
