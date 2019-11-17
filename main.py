@@ -16,7 +16,7 @@ class App:
         self.Il = 1
         self.Ia = 1
         self.k = .01
-        self.d = 10
+        self.d = 1
         self.plane_color = (0, 0, 255)
         self.sphere_color = (255, 0, 255)
         self.background = (255, 255, 255)
@@ -36,14 +36,17 @@ class App:
         
         #BUFFER SETUP BEGIN
         self.color_buffer = np.empty((1366, 768), dtype=object)
+        
         self.fill_buffer()
         self.z_buffer = np.full((1366, 768), -100000)
         self.set_plane_into_buffer()
         self.set_sphere_into_buffer()
+        self.color_buffer_changed = False
         #BUFFER SETUP END
 
         #DRAW BUFFER BEGIN
         self.draw_color_buffer()
+        self.color_buffer_backup = self.color_buffer
         #DRAW BUFFER END
 
     def fill_buffer(self):
@@ -113,6 +116,10 @@ class App:
         return(r,g,b)
 
     def call_model_1(self):
+        if(self.color_buffer_changed):
+            self.color_buffer_changed = False
+            self.color_buffer = self.color_buffer_backup
+
         cos_theta_plano = self.get_cos(self.plane_vector, self.light)
         cos_theta = 1
         obj = ''        
@@ -133,11 +140,13 @@ class App:
 
                     elif self.color_buffer[line][column]==self.sphere_color:
                         
-                        normal = [2*line, 2*column, 2*self.z_buffer[line][column]]
+                        normal = [2*(line-683), 2*(column-384), 2*self.z_buffer[line][column]]
                         norma = App.norma_vector(normal)
-                        normal =[normal[0]/norma, normal[1]/norma, normal[2]/norma]
+                        normal =[normal[0], normal[1], normal[2]]
                         
-                        App.norma_vector(normal)
+                        
+                        print(normal)
+                        print(self.light)
                         cos_theta = self.get_cos(normal, self.light)
                         obj = 'esfera'
 
@@ -150,11 +159,16 @@ class App:
                     self.color_buffer[line][column] = App.adjust(r,g,b)
                     # print(f'antes: {v}, depois:{(r,g,b)}')
                     
-                        
+        self.color_buffer_changed = True       
         self.draw_color_buffer()
 
 
     def call_model_2(self):
+        if(self.color_buffer_changed):
+            
+            self.color_buffer = self.color_buffer_backup
+            self.color_buffer_changed = False
+
         cos_theta_plano = self.get_cos(self.plane_vector, self.light)
         cos_a_plano = self.get_cos(self.plane_vector, self.observer)
         
@@ -167,7 +181,9 @@ class App:
         for line in range(0, len(self.color_buffer)-1):
             
             for column in range(0, len(self.color_buffer[line])):
-                
+                # print(f'({line}, {column})')
+
+
                 v = self.color_buffer[line][column]
                 if self.color_buffer[line][column] != self.background:
                     if self.color_buffer[line][column]==self.plane_color:
@@ -178,15 +194,15 @@ class App:
 
                     elif self.color_buffer[line][column]==self.sphere_color:
                         
-                        normal = [2*line, 2*column, 2*self.z_buffer[line][column]]
+                        normal = [2*(line-683), 2*(column-384), 2*self.z_buffer[line][column]]
                         norma = App.norma_vector(normal)
-                        normal =[normal[0]/norma, normal[1]/norma, normal[2]/norma]
-                        App.norma_vector(normal)
+                        normal =[normal[0], normal[1], normal[2]]
+                        
                         cos_theta = self.get_cos(normal, self.light)
                         cos_a = self.get_cos(normal, self.observer)
                         obj = 'esfera'
 
-                    I = self.equation_model_2(cos_theta,cos_a, obj)
+                    I = self.equation_model_2(cos_theta, cos_a, obj)
                     
                     r = int(I*self.color_buffer[line][column][0])
                     g = int(I*self.color_buffer[line][column][1])
@@ -195,7 +211,7 @@ class App:
                     self.color_buffer[line][column] = App.adjust(r,g,b)
                     # print(f'antes: {v}, depois:{(r,g,b)}')
                     
-                        
+        self.color_buffer_changed = True        
         self.draw_color_buffer()
 
 
@@ -217,8 +233,9 @@ class App:
             for column in range(len(self.color_buffer[line])):
                 # print(self.rgb2hex(self.color_buffer[line][column]))
                 # print(f'{line}, {column} ')
-                self.canvas.create_line(line, column, line+1,column,
-                fill=self.rgb2hex(self.color_buffer[line][column]))
+                if self.color_buffer[line][column]!=(255,255,255):
+                    self.canvas.create_line(line, column, line+1,column,
+                    fill=self.rgb2hex(self.color_buffer[line][column]))
 
 
     def set_plane_into_buffer(self):
@@ -245,6 +262,9 @@ class App:
 def main():
     root = tk.Tk()
     root.geometry('%dx%d+%d+%d'% (1000, 1000, root.winfo_screenheight()/2, root.winfo_screenwidth()/2))
+    # print(root.winfo_screenheight()/2)
+    # print(root.winfo_screenwidth()/2)
+
     root.title('Trabalho de Computação Gráfica')
     root.attributes('-zoomed', True)
     app = App(root)
